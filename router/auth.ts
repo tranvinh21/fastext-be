@@ -1,56 +1,36 @@
-import { type Response, Router } from "express";
-import { createUser, getUserByEmail } from "../lib/db/queries";
-import { users } from "../lib/db/schema";
-import { hashPassword, verifyPassword } from "../lib/utils/auth";
-
+import { Router } from "express";
+import { z } from "zod";
+import { validateSchema } from "../middleware";
+import { RoutePlugin } from "./routePlugin";
+import {
+  refreshTokenHandler,
+  signinHandler,
+  signupHandler,
+} from "../handler/auth";
+import { registerPlugins } from "../lib/utils";
+import {
+  refreshTokenSchema,
+  signinSchema,
+  signupSchema,
+} from "../schema/request/auth.schema";
 const router = Router();
 
-interface SignupRequest {
-	email: string;
-	name: string;
-	password: string;
-}
-interface SignupResponse {
-	message: string;
-}
+const signupPlugin = new RoutePlugin();
+signupPlugin.use(validateSchema(signupSchema));
+signupPlugin.setMethod("post");
+signupPlugin.register("/signup", signupHandler);
 
-interface SigninRequest {
-	email: string;
-	password: string;
-}
+const signinPlugin = new RoutePlugin();
+signinPlugin.use(validateSchema(signinSchema));
+signinPlugin.setMethod("post");
+signinPlugin.register("/signin", signinHandler);
 
-router.post("/signup", async (req, res): Promise<void> => {
-	const { email, password, name } = req.body as SignupRequest;
-	const emailExists = await getUserByEmail(email);
+const refreshTokenPlugin = new RoutePlugin();
+refreshTokenPlugin.use(validateSchema(refreshTokenSchema));
+refreshTokenPlugin.setMethod("post");
+refreshTokenPlugin.register("/refresh-token", refreshTokenHandler);
 
-	if (emailExists.length > 0) {
-		res.status(400).json({ message: "Email already exists" });
-		return;
-	}
-	const hashedPassword = await hashPassword(password);
-	await createUser(email, hashedPassword, name);
-	res.status(201).json({ message: "User created successfully" });
-	return;
-});
+const authRoutes = [signupPlugin, signinPlugin, refreshTokenPlugin];
+const authRouter = registerPlugins(router, authRoutes);
 
-router.post("/signin", async (req, res): Promise<void> => {
-	const { email, password } = req.body as SigninRequest;
-	const user = await getUserByEmail(email);
-	if (user.length === 0) {
-		res.status(400).json({ message: "User not found" });
-		return;
-	}
-	const isPasswordValid = await verifyPassword(
-		password,
-		user[0]?.password as string,
-	);
-	if (!isPasswordValid) {
-		res.status(400).json({ message: "Invalid password" });
-		return;
-	}
-
-	res.status(200).json({ message: "User signed in successfully" });
-	return;
-});
-
-export default router;
+export default authRouter;

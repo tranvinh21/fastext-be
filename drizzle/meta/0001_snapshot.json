@@ -1,6 +1,6 @@
 {
-  "id": "b9098195-15fd-43da-9466-16884463e028",
-  "prevId": "79c89c5e-592c-4009-bb93-f78b97fc8b7f",
+  "id": "a053122f-4800-40fc-8c0b-d9dea8b9fc13",
+  "prevId": "dd0724ff-204a-4ecb-b4c4-40085fdecc6d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -52,42 +52,35 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "is_cancelled": {
+          "name": "is_cancelled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_by": {
+          "name": "cancelled_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {
-        "unique_friendship": {
-          "name": "unique_friendship",
-          "columns": [
-            {
-              "expression": "LEAST(\"user_id\", \"friend_id\")",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "GREATEST(\"user_id\", \"friend_id\")",
-              "asc": true,
-              "isExpression": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "friends_user_id_users_id_fk": {
           "name": "friends_user_id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -95,12 +88,8 @@
           "name": "friends_friend_id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": [
-            "friend_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["friend_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -108,12 +97,8 @@
           "name": "friends_initiator_id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": [
-            "initiator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["initiator_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -174,16 +159,12 @@
         "users_name_unique": {
           "name": "users_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

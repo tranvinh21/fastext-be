@@ -1,36 +1,34 @@
 import { Router } from "express";
-import { getUserByEmail, getUserById, getUserByName } from "../lib/db/queries";
+import {
+  getUserByEmailHandler,
+  getUserByIdHandler,
+  getUserByNameHandler,
+} from "../handler/user";
+import { AuthMiddleware } from "../middleware";
+import { RoutePlugin } from "./routePlugin";
+import { registerPlugins } from "../lib/utils";
 
 const router = Router();
 
-router.get("/name/:name", async (req, res) => {
-	const { name } = req.params;
-	const user = await getUserByName(name);
-	if (user.length === 0) {
-		res.status(404).json({ message: "User not found" });
-		return;
-	}
-	res.status(200).json({ user: user[0] });
-});
+// GET /api/user/name/:name
+const getUserByNamePlugin = new RoutePlugin();
+getUserByNamePlugin.use(AuthMiddleware);
+getUserByNamePlugin.setMethod("get");
+getUserByNamePlugin.register("/name/:name", getUserByNameHandler);
 
-router.get("/email/:email", async (req, res) => {
-	const { email } = req.params;
-	const user = await getUserByEmail(email);
-	if (user.length === 0) {
-		res.status(404).json({ message: "User not found" });
-		return;
-	}
-	res.status(200).json({ user: user[0] });
-});
+// GET /api/user/email/:email
+const getUserByEmailPlugin = new RoutePlugin();
+getUserByEmailPlugin.use(AuthMiddleware);
+getUserByEmailPlugin.setMethod("get");
+getUserByEmailPlugin.register("/email/:email", getUserByEmailHandler);
 
-router.get("/:userId", async (req, res) => {
-	const { userId } = req.params;
-	const user = await getUserById(Number.parseInt(userId));
-	if (user.length === 0) {
-		res.status(404).json({ message: "User not found" });
-		return;
-	}
-	res.status(200).json({ user: user[0] });
-});
+// GET /api/user/:userId
+const getUserByIdPlugin = new RoutePlugin();
+getUserByIdPlugin.use(AuthMiddleware);
+getUserByIdPlugin.setMethod("get");
+getUserByIdPlugin.register("/:userId", getUserByIdHandler);
 
-export default router;
+const userRoutes = [getUserByNamePlugin];
+const userRouter = registerPlugins(router, userRoutes);
+
+export default userRouter;
