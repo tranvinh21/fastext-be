@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { errorHandler } from "./middleware";
@@ -12,6 +13,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // allow cors
 const whitelist = process.env.WHITELIST_DOMAINS?.split(",");
@@ -30,13 +32,17 @@ const corsOptions: cors.CorsOptions = {
 			callback(new Error("Not allowed by CORS"));
 		}
 	},
+	credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 app.use("/api", APIRoute);
 
 app.use(errorHandler);
 
-app.listen(3000, () => {
-	console.log("Server is running on port 3000");
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+	console.log(`Server is running on port ${port}`);
 });

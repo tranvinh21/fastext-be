@@ -8,13 +8,15 @@ export interface TokenPayload extends JwtPayload {
 }
 const generateAccessToken = (userId: number) => {
 	const payload: TokenPayload = { userId };
-	const options = { expiresIn: 60 * 60 * 1000 };
+	// 15 minutes
+	const options = { expiresIn: 15 * 60 * 1000 };
 	return jwt.sign(payload, secret, options);
 };
 
 const generateRefreshToken = (userId: number) => {
 	const payload: TokenPayload = { userId };
-	const options = { expiresIn: 7 * 24 * 60 * 60 * 1000 };
+	// 7 days
+	const options = { expiresIn: 30 * 24 * 60 * 60 * 1000 };
 	return jwt.sign(payload, secret, options);
 };
 

@@ -1,18 +1,18 @@
 import { Router } from "express";
 import { z } from "zod";
-import { validateSchema } from "../middleware";
-import { RoutePlugin } from "./routePlugin";
 import {
-  refreshTokenHandler,
-  signinHandler,
-  signupHandler,
+	refreshTokenHandler,
+	signinHandler,
+	signupHandler,
 } from "../handler/auth";
 import { registerPlugins } from "../lib/utils";
+import { validateSchema } from "../middleware";
 import {
-  refreshTokenSchema,
-  signinSchema,
-  signupSchema,
+	refreshTokenSchema,
+	signinSchema,
+	signupSchema,
 } from "../schema/request/auth.schema";
+import { RoutePlugin } from "./routePlugin";
 const router = Router();
 
 const signupPlugin = new RoutePlugin();
@@ -26,8 +26,8 @@ signinPlugin.setMethod("post");
 signinPlugin.register("/signin", signinHandler);
 
 const refreshTokenPlugin = new RoutePlugin();
-refreshTokenPlugin.use(validateSchema(refreshTokenSchema));
 refreshTokenPlugin.setMethod("post");
+// refreshTokenPlugin.use(validateSchema(refreshTokenSchema));
 refreshTokenPlugin.register("/refresh-token", refreshTokenHandler);
 
 const authRoutes = [signupPlugin, signinPlugin, refreshTokenPlugin];

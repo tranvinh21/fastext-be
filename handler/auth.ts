@@ -60,36 +60,66 @@ export const signinHandler: RequestHandler = async (
 	res: Response,
 ): Promise<void> => {
 	const { email, password } = req.body as SigninRequest;
-	const user = await getUserByEmail(email);
-	if (user.length === 0) {
-		res.status(400).json({ message: "User not found" });
-		return;
-	}
-	const isPasswordValid = await verifyPassword(
-		password,
-		user[0]?.password as string,
-	);
-	if (!isPasswordValid) {
-		res.status(400).json({ message: "Invalid password" });
-		return;
-	}
-	const accessToken = generateAccessToken(user[0]?.id as unknown as number);
-	const refreshToken = generateRefreshToken(user[0]?.id as unknown as number);
+	const users = await getUserByEmail(email); // Fetch user by email
 
+	const user = users.length > 0 ? users[0] : null;
+
+	// Use the user's actual hash if they exist, otherwise use a default string
+	// that is guaranteed not to match any real password hash.
+	// This ensures the verifyPassword function is called in both cases,
+	// helping to prevent timing attacks based on user existence.
+	const hashToCompare = user
+		? (user.password as string)
+		: "dummy_invalid_hash_for_timing_attack_mitigation";
+
+	// Perform password verification against the actual hash or the dummy hash.
+	// This step takes roughly the same amount of time regardless of whether 'user' exists.
+	const isPasswordValid = verifyPassword(password, hashToCompare);
+
+	// Check if the user exists *and* the password is valid *after* the comparison.
+	if (!user || !isPasswordValid) {
+		// Return the same generic error message for both non-existent user
+		// and incorrect password cases.
+		res.status(400).json({ message: "invalid credentials" });
+		return;
+	}
+
+	// Proceed with successful login only if user exists and password is valid
+	const accessToken = generateAccessToken(user.id as unknown as number);
+	const refreshToken = generateRefreshToken(user.id as unknown as number);
+	res.cookie("token", refreshToken, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "none",
+		maxAge: 30 * 24 * 60 * 60 * 1000,
+	});
 	res.status(200).json({
 		message: "User signed in successfully",
 		accessToken,
-		refreshToken,
 	});
-	return;
+	// No explicit return needed here as res.json() sends the response
 };
 
 export const refreshTokenHandler: RequestHandler = async (
 	req: Request,
 	res: Response,
 ): Promise<void> => {
-	const { refreshToken } = req.body as { refreshToken: string };
-	const accessToken = generateAccesstokenFromRefreshToken(refreshToken);
-	res.status(200).json({ accessToken });
-	return;
+	try {
+		const refreshToken = req.cookies?.token;
+
+		console.log("refreshToken", refreshToken);
+		return;
+	} catch (error) {
+		// Handle potential errors from token verification (e.g., expired, invalid)
+		console.error("Refresh token error:", error);
+		if (error instanceof Error && error.name === "JsonWebTokenError") {
+			res.status(401).json({ message: "Invalid refresh token" });
+		} else if (error instanceof Error && error.name === "TokenExpiredError") {
+			res.status(401).json({ message: "Refresh token expired" });
+		} else {
+			res
+				.status(500)
+				.json({ message: "An error occurred during token refresh" });
+		}
+	}
 };
