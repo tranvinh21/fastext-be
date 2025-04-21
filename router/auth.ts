@@ -1,17 +1,14 @@
 import { Router } from "express";
 import { z } from "zod";
 import {
+	logoutHandler,
 	refreshTokenHandler,
 	signinHandler,
 	signupHandler,
 } from "../handler/auth";
 import { registerPlugins } from "../lib/utils";
 import { validateSchema } from "../middleware";
-import {
-	refreshTokenSchema,
-	signinSchema,
-	signupSchema,
-} from "../schema/request/auth.schema";
+import { signinSchema, signupSchema } from "../schema/request/auth.schema";
 import { RoutePlugin } from "./routePlugin";
 const router = Router();
 
@@ -30,7 +27,16 @@ refreshTokenPlugin.setMethod("post");
 // refreshTokenPlugin.use(validateSchema(refreshTokenSchema));
 refreshTokenPlugin.register("/refresh-token", refreshTokenHandler);
 
-const authRoutes = [signupPlugin, signinPlugin, refreshTokenPlugin];
+const logoutPlugin = new RoutePlugin();
+logoutPlugin.setMethod("post");
+logoutPlugin.register("/signout", logoutHandler);
+
+const authRoutes = [
+	signupPlugin,
+	signinPlugin,
+	refreshTokenPlugin,
+	logoutPlugin,
+];
 const authRouter = registerPlugins(router, authRoutes);
 
 export default authRouter;

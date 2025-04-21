@@ -20,8 +20,8 @@ const generateRefreshToken = (userId: number) => {
 	return jwt.sign(payload, secret, options);
 };
 
-const verifyToken = (token: string) => {
-	return jwt.verify(token, secret) as JwtPayload;
+const verifyToken = (token: string): TokenPayload => {
+	return jwt.verify(token, secret) as TokenPayload;
 };
 
 const hashPassword = (password: string) => {

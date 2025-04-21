@@ -1,11 +1,17 @@
 import type { Request, RequestHandler, Response } from "express";
-import { createUser, getUserByEmail, getUserByName } from "../lib/db/queries";
+import {
+	createUser,
+	getUserByEmail,
+	getUserById,
+	getUserByName,
+} from "../lib/db/queries";
 import {
 	generateAccessToken,
 	generateAccesstokenFromRefreshToken,
 	generateRefreshToken,
 	hashPassword,
 	verifyPassword,
+	verifyToken,
 } from "../service/auth";
 interface SignupRequest {
 	email: string;
@@ -87,10 +93,10 @@ export const signinHandler: RequestHandler = async (
 	// Proceed with successful login only if user exists and password is valid
 	const accessToken = generateAccessToken(user.id as unknown as number);
 	const refreshToken = generateRefreshToken(user.id as unknown as number);
-	res.cookie("token", refreshToken, {
+	res.cookie("accessToken", refreshToken, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "none",
+		sameSite: "lax",
 		maxAge: 30 * 24 * 60 * 60 * 1000,
 	});
 	res.status(200).json({
@@ -105,10 +111,27 @@ export const refreshTokenHandler: RequestHandler = async (
 	res: Response,
 ): Promise<void> => {
 	try {
-		const refreshToken = req.cookies?.token;
+		const refreshToken = req.cookies?.accessToken;
+		if (!refreshToken) {
+			res.status(403).json({ message: "Forbidden" });
+			return;
+		}
 
-		console.log("refreshToken", refreshToken);
-		return;
+		const payload = verifyToken(refreshToken);
+
+		const userId = payload.userId;
+		const user = await getUserById(userId);
+
+		if (!user) {
+			res.status(403).json({ message: "Forbidden" });
+			return;
+		}
+
+		const newAccessToken = generateAccessToken(userId);
+		res.status(200).json({
+			message: "Access token refreshed successfully",
+			accessToken: newAccessToken,
+		});
 	} catch (error) {
 		// Handle potential errors from token verification (e.g., expired, invalid)
 		console.error("Refresh token error:", error);
@@ -122,4 +145,12 @@ export const refreshTokenHandler: RequestHandler = async (
 				.json({ message: "An error occurred during token refresh" });
 		}
 	}
+};
+
+export const logoutHandler: RequestHandler = async (
+	req: Request,
+	res: Response,
+): Promise<void> => {
+	res.clearCookie("accessToken");
+	res.status(200).json({ message: "Logged out successfully" });
 };
