@@ -1,0 +1,17 @@
+[phases.setup]
+# Use the latest Bun image provided by Nixpacks
+# Include C++ standard library for native dependencies like bcrypt
+nixPkgs = ["...", "pkgs.bun", "pkgs.stdenv.cc.cc.lib"]
+
+[phases.install]
+# Install dependencies using bun install
+cmds = ["bun install"]
+
+[phases.build]
+# No explicit build step needed if running TypeScript directly with Bun
+# If you had a build script (e.g., tsc), you'd add it here:
+# cmds = ["bun run build"]
+
+[start]
+# Use the start script defined in package.json
+cmd = "bun run index.ts"
