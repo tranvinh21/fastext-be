@@ -151,6 +151,11 @@ export const logoutHandler: RequestHandler = async (
 	req: Request,
 	res: Response,
 ): Promise<void> => {
-	res.clearCookie("accessToken");
+	res.clearCookie("accessToken", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "lax",
+		path: "/",
+	});
 	res.status(200).json({ message: "Logged out successfully" });
 };
