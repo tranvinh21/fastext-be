@@ -1,8 +1,9 @@
 import crypto from "crypto-js";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 // biome-ignore lint/style/noNonNullAssertion: <explanation>
-const secret = process.env.JWT_SECRET!;
-
+const accessSecret = process.env.ACCESS_TOKEN_SECRET!;
+// biome-ignore lint/style/noNonNullAssertion: <explanation>
+const refreshSecret = process.env.REFRESH_TOKEN_SECRET!;
 export interface TokenPayload extends JwtPayload {
 	userId: number;
 }
@@ -10,18 +11,22 @@ const generateAccessToken = (userId: number) => {
 	const payload: TokenPayload = { userId };
 	// 15 minutes
 	const options = { expiresIn: 15 * 60 * 1000 };
-	return jwt.sign(payload, secret, options);
+	return jwt.sign(payload, accessSecret, options);
 };
 
 const generateRefreshToken = (userId: number) => {
 	const payload: TokenPayload = { userId };
 	// 7 days
 	const options = { expiresIn: 30 * 24 * 60 * 60 * 1000 };
-	return jwt.sign(payload, secret, options);
+	return jwt.sign(payload, refreshSecret, options);
 };
 
-const verifyToken = (token: string): TokenPayload => {
-	return jwt.verify(token, secret) as TokenPayload;
+const verifyAccessToken = (token: string): TokenPayload => {
+	return jwt.verify(token, accessSecret) as TokenPayload;
+};
+
+const verifyRefreshToken = (token: string): TokenPayload => {
+	return jwt.verify(token, refreshSecret) as TokenPayload;
 };
 
 const hashPassword = (password: string) => {
@@ -33,14 +38,15 @@ const verifyPassword = (password: string, hashedPassword: string) => {
 };
 
 const generateAccesstokenFromRefreshToken = (refreshToken: string) => {
-	const payload = verifyToken(refreshToken);
+	const payload = verifyRefreshToken(refreshToken);
 	return generateAccessToken(payload.userId);
 };
 
 export {
 	generateAccessToken,
 	generateRefreshToken,
-	verifyToken,
+	verifyAccessToken,
+	verifyRefreshToken,
 	hashPassword,
 	verifyPassword,
 	generateAccesstokenFromRefreshToken,

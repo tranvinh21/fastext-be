@@ -7,11 +7,10 @@ import {
 } from "../lib/db/queries";
 import {
 	generateAccessToken,
-	generateAccesstokenFromRefreshToken,
 	generateRefreshToken,
 	hashPassword,
 	verifyPassword,
-	verifyToken,
+	verifyRefreshToken,
 } from "../service/auth";
 interface SignupRequest {
 	email: string;
@@ -117,7 +116,7 @@ export const refreshTokenHandler: RequestHandler = async (
 			return;
 		}
 
-		const payload = verifyToken(refreshToken);
+		const payload = verifyRefreshToken(refreshToken);
 
 		const userId = payload.userId;
 		const user = await getUserById(userId);
