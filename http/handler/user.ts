@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { getUserByName } from "../lib/db/queries";
+import { getUserByName } from "../../lib/db/queries";
 
 export const getUserByNameHandler = async (req: Request, res: Response) => {
   const { name } = req.params;

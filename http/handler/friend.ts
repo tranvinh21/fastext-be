@@ -10,7 +10,7 @@ import {
 	getFriendship,
 	getUserById,
 	rejectFriendship,
-} from "../lib/db/queries";
+} from "../../lib/db/queries";
 
 export const getFriendsHandler = async (req: Request, res: Response) => {
 	try {

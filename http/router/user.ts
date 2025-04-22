@@ -6,7 +6,7 @@ import {
 } from "../handler/user";
 import { AuthMiddleware } from "../middleware";
 import { RoutePlugin } from "./routePlugin";
-import { registerPlugins } from "../lib/utils";
+import { registerPlugins } from "../../lib/utils";
 
 const router = Router();
 

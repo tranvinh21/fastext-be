@@ -10,8 +10,8 @@ import {
   getFriendsHandler,
   rejectFriendRequestHandler,
 } from "../handler/friend";
-import { addFriendSchema } from "../schema/request/friend.schema";
-import { registerPlugins } from "../lib/utils";
+import { addFriendSchema } from "../payloads/request/friend.schema";
+import { registerPlugins } from "../../lib/utils";
 const router = Router();
 
 // GET /api/friend

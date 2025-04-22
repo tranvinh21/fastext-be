@@ -1,26 +1,11 @@
 import cors from "cors";
 import express, { type Express } from "express";
-
+import http from "http";
 import cookieParser from "cookie-parser";
-import cors from "cors";
-import express from "express";
-import { errorHandler } from "./middleware";
-import APIRoute from "./router";
-const app = express();
+import APIRoute from "../http/router";
+import { errorHandler } from "../http/middleware";
 
-// Add request logging
-app.use((req, res, next) => {
-	console.log(`${req.method} ${req.url}`);
-	next();
-});
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-// allow cors
 const whitelist = process.env.WHITELIST_DOMAINS?.split(",");
-
 const corsOptions: cors.CorsOptions = {
 	origin: (
 		origin: string | undefined,
@@ -37,48 +22,45 @@ const corsOptions: cors.CorsOptions = {
 	},
 	credentials: true,
 };
-
-app.use(cors(corsOptions));
-
-app.use("/api", APIRoute);
-
-app.use(errorHandler);
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-	console.log(`Server is running on port ${port}`);
-});
-
 export class HttpServer {
 	private app: Express;
 	private port: number;
+	private server: http.Server | undefined;
+
 	constructor(port: number) {
 		this.app = express();
 		this.port = port;
 	}
 
-	RegisterMiddleware() {
-		this.app.use(cors());
+	private registerMiddleware() {
+		this.app.use((req, res, next) => {
+			console.log(`${req.method} ${req.url}`);
+			next();
+		});
+		
+		this.app.use(cors(corsOptions));
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
 		this.app.use(cookieParser());
-	}
 
-	RegisterRoutes() {
+		this.app.use("/check", express.static("./public/index.html"));
 		this.app.use("/api", APIRoute);
-	}
-
-	RegisterErrorHandler() {
 		this.app.use(errorHandler);
 	}
 
 	Run() {
-		this.RegisterMiddleware();
-		this.RegisterRoutes();
-		this.RegisterErrorHandler();
-		this.app.listen(this.port, () => {
+		this.registerMiddleware();
+		this.server = this.app.listen(this.port, () => {
 			console.log(`Server is running on port ${this.port}`);
 		});
 	}
+
+	GetApp() {
+		return this.app;
+	}
+
+	GetServer() {
+		return this.server;
+	}
+
 }

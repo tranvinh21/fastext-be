@@ -6,9 +6,9 @@ import {
 	signinHandler,
 	signupHandler,
 } from "../handler/auth";
-import { registerPlugins } from "../lib/utils";
+import { registerPlugins } from "../../lib/utils";
 import { validateSchema } from "../middleware";
-import { signinSchema, signupSchema } from "../schema/request/auth.schema";
+import { signinSchema, signupSchema } from "../payloads/request/auth.schema";
 import { RoutePlugin } from "./routePlugin";
 const router = Router();
 

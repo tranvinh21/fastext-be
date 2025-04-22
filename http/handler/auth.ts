@@ -4,7 +4,7 @@ import {
 	getUserByEmail,
 	getUserById,
 	getUserByName,
-} from "../lib/db/queries";
+} from "../../lib/db/queries";
 import {
 	generateAccessToken,
 	generateRefreshToken,

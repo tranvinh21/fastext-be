@@ -1,5 +1,5 @@
 import type { Router } from "express";
-import type { RoutePlugin } from "../../router/routePlugin";
+import type { RoutePlugin } from "../../http/router/routePlugin";
 
 export function registerPlugins(router: Router, plugins: RoutePlugin[]) {
 	for (const plugin of plugins) {
