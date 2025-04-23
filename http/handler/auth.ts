@@ -91,6 +91,7 @@ export const signinHandler: RequestHandler = async (
 
 	// Proceed with successful login only if user exists and password is valid
 	const accessToken = generateAccessToken(user.id as unknown as number);
+	console.log("accessToken", accessToken);
 	const refreshToken = generateRefreshToken(user.id as unknown as number);
 	res.cookie("accessToken", refreshToken, {
 		httpOnly: true,

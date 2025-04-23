@@ -58,3 +58,30 @@ export const validateSchema = <T>(schema: ZodSchema<T>) => {
 		next();
 	};
 };
+
+
+export const validateQuery = <T>(schema: ZodSchema<T>) => {
+	return (req: Request, res: Response, next: NextFunction): void => {
+		const result = schema.safeParse(req.query);
+
+		if (!result.success) {
+			const formattedErrors = Object.entries(result.error.format()).reduce(
+				(acc, [key, value]) => {
+					if (key === "_errors") return acc; // skip root-level errors
+					acc[key] = (value as any)._errors?.[0] || "Invalid value";
+					return acc;
+				},
+				{} as Record<string, string>,
+			);
+
+			res.status(400).json({
+				message: "Validation failed",
+				errors: formattedErrors,
+			});
+			return;
+		}
+
+		req.body = result.data;
+		next();
+	};
+};

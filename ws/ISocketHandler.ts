@@ -1,5 +1,5 @@
 // src/websocket/interfaces/ISocketHandler.ts
-import { Socket, } from 'socket.io';
+import type { Socket } from 'socket.io';
 
 export interface ISocketHandler {
   handleConnection(socket: Socket): void;

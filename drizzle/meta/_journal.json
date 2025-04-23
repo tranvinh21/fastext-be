@@ -15,6 +15,13 @@
       "when": 1745149637263,
       "tag": "0001_jazzy_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745367805899,
+      "tag": "0002_sad_weapon_omega",
+      "breakpoints": true
     }
   ]
 }

@@ -46,6 +46,7 @@ export const conversations = pgTable("conversations", {
 	isGroup: boolean("is_group").default(false),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
+	deletedAt: timestamp("deleted_at")
 });
 
 export type Conversation = typeof conversations.$inferSelect;
