@@ -1,22 +1,24 @@
 import { Router } from "express";
-import { RoutePlugin } from "./routePlugin";
 import { registerPlugins } from "../../lib/utils";
+import { initPrivateConversationHandler } from "../handler/conversation";
 import { AuthMiddleware, validateSchema } from "../middleware";
-import { initConversationHandler } from "../handler/conversation";
-import { initConversationSchema } from "../payloads/request/conversation.schema";
+import { initPrivateConversationSchema } from "../payloads/request/conversation.schema";
+import { RoutePlugin } from "./routePlugin";
 
 const router = Router();
 
-const initConversationPlugin = new RoutePlugin();
-initConversationPlugin.use(validateSchema(initConversationSchema));
-initConversationPlugin.use(AuthMiddleware);
-initConversationPlugin.setMethod("post");
-initConversationPlugin.register("/", initConversationHandler);
+const initPrivateConversationPlugin = new RoutePlugin();
+initPrivateConversationPlugin.use(
+	validateSchema(initPrivateConversationSchema),
+);
+initPrivateConversationPlugin.use(AuthMiddleware);
+initPrivateConversationPlugin.setMethod("post");
+initPrivateConversationPlugin.register(
+	"/private",
+	initPrivateConversationHandler,
+);
 
-
-const conversationRoutes = [
-	initConversationPlugin,
-];
+const conversationRoutes = [initPrivateConversationPlugin];
 
 const conversationRouter = registerPlugins(router, conversationRoutes);
 

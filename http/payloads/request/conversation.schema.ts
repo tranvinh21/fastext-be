@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const initConversationSchema = z.object({
-	memberIds: z.array(z.number()),
-	name: z.string(),
+export const initPrivateConversationSchema = z.object({
+	memberIds: z.array(z.number()).length(2),
 });
-

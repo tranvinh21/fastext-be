@@ -1,9 +1,16 @@
 import { Router } from "express";
-import { RoutePlugin } from "./routePlugin";
 import { registerPlugins } from "../../lib/utils";
+import {
+	deleteMessageHandler,
+	getMessagesHandler,
+	sendMessageHandler,
+} from "../handler/message";
 import { AuthMiddleware, validateQuery, validateSchema } from "../middleware";
-import { getMessageQuerySchema, sendMessageSchema } from "../payloads/request/message.schema";
-import { deleteMessageHandler, getMessagesHandler, sendMessageHandler } from "../handler/message";
+import {
+	getMessageQuerySchema,
+	sendMessageSchema,
+} from "../payloads/request/message.schema";
+import { RoutePlugin } from "./routePlugin";
 
 const router = Router();
 
@@ -24,12 +31,7 @@ sendMessagePlugin.use(AuthMiddleware);
 sendMessagePlugin.setMethod("post");
 sendMessagePlugin.register("/", sendMessageHandler);
 
-
-const messageRoutes = [
-	messagePlugin,
-	deleteMessagePlugin,
-	sendMessagePlugin,
-];
+const messageRoutes = [messagePlugin, deleteMessagePlugin, sendMessagePlugin];
 
 const messageRouter = registerPlugins(router, messageRoutes);
 

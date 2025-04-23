@@ -43,7 +43,6 @@ export class HttpServer {
 		this.app.use(express.urlencoded({ extended: true }));
 		this.app.use(cookieParser());
 
-		this.app.use("/check", express.static("./public/index.html"));
 		this.app.use("/api", APIRoute);
 		this.app.use(errorHandler);
 	}

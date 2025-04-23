@@ -22,6 +22,13 @@
       "when": 1745367805899,
       "tag": "0002_sad_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745375403928,
+      "tag": "0003_worthless_talkback",
+      "breakpoints": true
     }
   ]
 }

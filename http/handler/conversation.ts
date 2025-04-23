@@ -1,18 +1,20 @@
 import type { Request, Response } from "express";
-import { getOrCreateConversation } from "../../lib/db/queries/conversation";
+import {
+	createPrivateConversation,
+	getConversationByChatKey,
+} from "../../lib/db/queries/conversation";
 import { getUsersByIds } from "../../lib/db/queries/user";
+import { findOrCreatePrivateConversation } from "../service/conversation";
 
-
-
-export const initConversationHandler = async (req: Request, res: Response) => {
-	const { memberIds, name } = req.body;
-    // Validate memberIds are existing user ids
-    const existingUsers = await getUsersByIds(memberIds);
-    if (existingUsers.length !== memberIds.length) {
-        return res.status(400).json({ error: "Invalid member IDs" });
-    }
-	const conversation = await getOrCreateConversation(name, memberIds) 
+export const initPrivateConversationHandler = async (
+	req: Request,
+	res: Response,
+) => {
+	const { memberIds } = req.body;
+	const existingUsers = await getUsersByIds(memberIds);
+	if (existingUsers.length !== memberIds.length) {
+		return res.status(400).json({ error: "Invalid member IDs" });
+	}
+	const conversation = await findOrCreatePrivateConversation(memberIds);
 	res.json(conversation);
 };
-
-

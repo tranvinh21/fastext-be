@@ -42,23 +42,27 @@ export type Friend = typeof friends.$inferSelect;
 
 export const conversations = pgTable("conversations", {
 	id: serial("id").primaryKey(),
-	name: varchar("name", { length: 255 }).notNull(),
+	name: varchar("name", { length: 255 }),
+	chatKey: varchar("chat_key", { length: 255 }).notNull(),
 	isGroup: boolean("is_group").default(false),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
-	deletedAt: timestamp("deleted_at")
+	deletedAt: timestamp("deleted_at"),
 });
 
 export type Conversation = typeof conversations.$inferSelect;
 
 export const conversationMembers = pgTable("conversation_members", {
 	id: serial("id").primaryKey(),
-	conversationId: serial("conversation_id").references(() => conversations.id, {
-		onDelete: "cascade",
-	}),
+	conversationId: integer("conversation_id")
+		.notNull()
+		.references(() => conversations.id, {
+			onDelete: "cascade",
+		}),
 	userId: serial("user_id").references(() => users.id, {
 		onDelete: "cascade",
 	}),
+	nickname: varchar("nickname", { length: 255 }),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
