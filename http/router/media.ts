@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { registerPlugins } from "../../lib/utils";
-import { signUrlHandler } from "../handler/media";
+import { getViewUrlsHandler, signUrlHandler } from "../handler/media";
 import { AuthMiddleware } from "../middleware";
 import { RoutePlugin } from "./routePlugin";
 
@@ -11,6 +11,11 @@ signUrlPlugin.setMethod("post");
 signUrlPlugin.use(AuthMiddleware);
 signUrlPlugin.register("/sign", signUrlHandler);
 
-const mediaRoutes = [signUrlPlugin];
+const getViewUrlsPlugin = new RoutePlugin();
+getViewUrlsPlugin.setMethod("post");
+getViewUrlsPlugin.use(AuthMiddleware);
+getViewUrlsPlugin.register("/get-view-urls", getViewUrlsHandler);
+
+const mediaRoutes = [signUrlPlugin, getViewUrlsPlugin];
 const mediaRouter = registerPlugins(router, mediaRoutes);
 export default mediaRouter;

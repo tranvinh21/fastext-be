@@ -16,7 +16,12 @@ export const initializePrivateConversationHandler = async (
 	if (!chatKey) {
 		return res.status(400).json({ error: "Chat key is required" });
 	}
-	const memberIds = chatKey ? chatKey.split("_").map(Number) : [];
+	const memberIds = chatKey
+		? chatKey
+				.split("_")
+				.map(Number)
+				.sort((a, b) => a - b)
+		: [];
 	// Check if all memberIds are valid
 	const existingUsers = await getUsersByIds(memberIds);
 	if (existingUsers.length !== memberIds.length) {

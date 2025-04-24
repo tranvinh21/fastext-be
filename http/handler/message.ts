@@ -42,7 +42,7 @@ export const deleteMessageHandler = async (req: Request, res: Response) => {
 };
 
 export const sendMessageHandler = async (req: Request, res: Response) => {
-	const { conversationId, message, replyToMessageId } = req.body;
+	const { conversationId, parts, replyToMessageId } = req.body;
 	const { userId } = req.user as TokenPayload;
 
 	const conversation = await getConversationById(conversationId);
@@ -50,7 +50,6 @@ export const sendMessageHandler = async (req: Request, res: Response) => {
 		return res.status(404).json({ error: "Conversation not found" });
 	}
 
-	const parts: MessagePart[] = [{ type: "text", content: message }];
 	const newMessage = await createMessage(
 		conversation.id,
 		parts,

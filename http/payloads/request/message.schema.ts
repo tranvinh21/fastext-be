@@ -8,6 +8,11 @@ export const getMessageQuerySchema = z.object({
 
 export const sendMessageSchema = z.object({
 	conversationId: z.number(),
-	message: z.string(),
+	parts: z.array(
+		z.object({
+			type: z.enum(["text", "image", "audio", "video", "file"]),
+			content: z.string(),
+		}),
+	),
 	replyToMessageId: z.number().optional(),
 });

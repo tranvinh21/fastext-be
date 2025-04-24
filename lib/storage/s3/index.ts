@@ -24,14 +24,34 @@ export class S3Storage implements StorageInterface {
 		method,
 		filePath,
 	}: { method: "get" | "put"; filePath: string }): Promise<string> {
-		const ObjectCommand = new PutObjectCommand({
-			Bucket: process.env.S3_BUCKET,
-			Key: "test/test.txt",
-		});
+		const ObjectCommand =
+			method === "get"
+				? new GetObjectCommand({
+						Bucket: process.env.S3_BUCKET,
+						Key: filePath,
+					})
+				: new PutObjectCommand({
+						Bucket: process.env.S3_BUCKET,
+						Key: filePath,
+					});
 
 		const signedUrl = await getSignedUrl(this.s3, ObjectCommand, {
 			expiresIn: 3600,
 		});
 		return signedUrl;
+	}
+
+	async getPresignedViewUrls(keys: string[]): Promise<Record<string, string>> {
+		const urls = await Promise.all(
+			keys.map(async (key) => {
+				const url = await this.getPresignedUrl({
+					method: "get",
+					filePath: key,
+				});
+				return { [key]: url };
+			}),
+		);
+		// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
+		return urls.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 	}
 }

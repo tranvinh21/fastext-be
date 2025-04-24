@@ -9,11 +9,10 @@ export async function signUrlHandler(
 	try {
 		const body = req.body;
 		// biome-ignore lint/style/noNonNullAssertion: <explanation>
-		const { userId } = req.user!;
 		const { fileName, method } = body;
 		const storageClient = new S3Storage();
 		const url = await storageClient.getPresignedUrl({
-			filePath: `${userId}/${fileName}`,
+			filePath: fileName,
 			method,
 		});
 		res.send(url);
@@ -22,3 +21,10 @@ export async function signUrlHandler(
 		next(error);
 	}
 }
+
+export const getViewUrlsHandler = async (req: Request, res: Response) => {
+	const { keys } = req.body;
+	const storageClient = new S3Storage();
+	const urls = await storageClient.getPresignedViewUrls(keys);
+	res.send(urls);
+};

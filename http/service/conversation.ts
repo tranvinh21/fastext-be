@@ -5,18 +5,16 @@ import {
 } from "../../lib/db/queries/conversation";
 
 const generateChatKey = (memberIds: number[]) => {
-	return memberIds.sort().join("_");
+	return memberIds.sort((a, b) => a - b).join("_");
 };
 
 export const findOrCreatePrivateConversation = async (memberIds: number[]) => {
 	const chatKey = generateChatKey(memberIds);
-
 	// Check if conversation already exists
 	const conversation = await getPrivateConversationByChatKey(chatKey);
 	if (conversation) {
 		return conversation;
 	}
-
 	// Create conversation
 	const newConversation = await createPrivateConversation(chatKey);
 	if (!newConversation) {

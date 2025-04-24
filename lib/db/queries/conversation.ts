@@ -104,7 +104,10 @@ export const getGroupsByUserId = async (userId: number) => {
 
 export const createPrivateConversation = async (
 	chatKey: string,
-): Promise<Conversation | undefined> => {};
+): Promise<Conversation | undefined> => {
+	const conversation = await createConversation(null, chatKey, false);
+	return conversation;
+};
 export const createGroupConversation = async (
 	memberIds: number[],
 	name: string,
@@ -126,6 +129,7 @@ export const createConversation = async (
 		.insert(conversations)
 		.values({ name, chatKey, isGroup })
 		.returning();
+	console.log("createConversation: conversation:", conversation);
 	return conversation[0];
 };
 export const getConversationById = async (
