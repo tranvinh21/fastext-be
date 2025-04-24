@@ -120,7 +120,6 @@ export const refreshTokenHandler: RequestHandler = async (
 
 		const userId = payload.userId;
 		const user = await getUserById(userId);
-
 		if (!user) {
 			res.status(403).json({ message: "Forbidden" });
 			return;

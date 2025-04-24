@@ -1,11 +1,13 @@
 import cors from "cors";
 import express, { type Express } from "express";
-import http from "http";
+// biome-ignore lint/style/useImportType: <explanation>
+import http from "node:http";
 import cookieParser from "cookie-parser";
 import APIRoute from "../http/router";
 import { errorHandler } from "../http/middleware";
+import { env } from "../config/env";
 
-const whitelist = process.env.WHITELIST_DOMAINS?.split(",");
+const whitelist = env.whitelist.domains;
 const corsOptions: cors.CorsOptions = {
 	origin: (
 		origin: string | undefined,

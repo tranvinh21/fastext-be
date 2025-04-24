@@ -17,9 +17,9 @@ import {
 	messages,
 	users,
 } from "./schema";
+import { env } from "../../config/env";
 
-// biome-ignore lint/style/noNonNullAssertion: <explanation>
-const client = postgres(process.env.DATABASE_URL!);
+const client = postgres(env.database.databaseUrl);
 const db = drizzle(client, {
 	schema: {
 		users,

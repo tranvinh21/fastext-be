@@ -5,8 +5,5 @@ const httpServer = new HttpServer(3000);
 Websocket.getInstance(httpServer);
 Websocket.initializeHandlers();
 
-
-
-
 httpServer.Run();
 

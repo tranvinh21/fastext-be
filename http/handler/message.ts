@@ -11,11 +11,11 @@ import {
 	getMessages,
 } from "../../lib/db/queries/message";
 import type { TokenPayload } from "../service/auth";
-import type { MessagePart } from "../types/message";
 
+// Get messages from a conversation
 export const getMessagesHandler = async (req: Request, res: Response) => {
 	const messages = await getMessages(req.query);
-	res.json(messages);
+	return res.json(messages);
 };
 
 export const deleteMessageHandler = async (req: Request, res: Response) => {

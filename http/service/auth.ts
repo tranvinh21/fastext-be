@@ -1,9 +1,8 @@
 import crypto from "crypto-js";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-// biome-ignore lint/style/noNonNullAssertion: <explanation>
-const accessSecret = process.env.ACCESS_TOKEN_SECRET!;
-// biome-ignore lint/style/noNonNullAssertion: <explanation>
-const refreshSecret = process.env.REFRESH_TOKEN_SECRET!;
+import { env } from "../../config/env";
+const accessSecret = env.auth.accessTokenSecret;
+const refreshSecret = env.auth.refreshTokenSecret;
 export interface TokenPayload extends JwtPayload {
 	userId: number;
 }

@@ -8,6 +8,7 @@ import {
 import { getUsersByIds } from "../../lib/db/queries/user";
 import { findOrCreatePrivateConversation } from "../service/conversation";
 
+// Initialize a private conversation
 export const initializePrivateConversationHandler = async (
 	req: Request,
 	res: Response,
@@ -16,12 +17,13 @@ export const initializePrivateConversationHandler = async (
 	if (!chatKey) {
 		return res.status(400).json({ error: "Chat key is required" });
 	}
-	const memberIds = chatKey
-		? chatKey
-				.split("_")
-				.map(Number)
-				.sort((a, b) => a - b)
-		: [];
+
+	const memberIds = chatKey.split("_").map(Number);
+
+	if (memberIds.length !== 2) {
+		return res.status(400).json({ error: "Invalid chat key" });
+	}
+
 	// Check if all memberIds are valid
 	const existingUsers = await getUsersByIds(memberIds);
 	if (existingUsers.length !== memberIds.length) {
@@ -30,9 +32,10 @@ export const initializePrivateConversationHandler = async (
 
 	// Find or create conversation
 	const conversation = await findOrCreatePrivateConversation(memberIds);
-	res.json(conversation);
+	return res.json(conversation);
 };
 
+// Create a group conversation
 export const createGroupConversationHandler = async (
 	req: Request,
 	res: Response,
@@ -46,11 +49,12 @@ export const createGroupConversationHandler = async (
 		memberIds,
 		name,
 		randomUUIDv7(),
-	);
+	);	
 
-	res.json(conversation);
+	return res.json(conversation);
 };
 
+// Get all group conversations for a user
 export const getGroupConversationHandler = async (
 	req: Request,
 	res: Response,
@@ -58,9 +62,10 @@ export const getGroupConversationHandler = async (
 	// biome-ignore lint/style/noNonNullAssertion: <explanation>
 	const { userId } = req.user!;
 	const conversations = await getGroupsByUserId(userId);
-	res.json(conversations);
+	return res.json(conversations);
 };
 
+// Get a group conversation by chat key
 export const getGroupConversationByChatKeyHandler = async (
 	req: Request,
 	res: Response,
@@ -70,5 +75,5 @@ export const getGroupConversationByChatKeyHandler = async (
 		return res.status(400).json({ error: "Chat key is required" });
 	}
 	const conversation = await getGroupConversationByChatKey(chatKey);
-	res.json(conversation);
+	return res.json(conversation);
 };
