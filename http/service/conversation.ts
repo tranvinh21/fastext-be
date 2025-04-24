@@ -1,7 +1,7 @@
 import {
 	createConversationMember,
 	createPrivateConversation,
-	getConversationByChatKey,
+	getPrivateConversationByChatKey,
 } from "../../lib/db/queries/conversation";
 
 const generateChatKey = (memberIds: number[]) => {
@@ -10,17 +10,23 @@ const generateChatKey = (memberIds: number[]) => {
 
 export const findOrCreatePrivateConversation = async (memberIds: number[]) => {
 	const chatKey = generateChatKey(memberIds);
-	const conversation = await getConversationByChatKey(chatKey);
+
+	// Check if conversation already exists
+	const conversation = await getPrivateConversationByChatKey(chatKey);
 	if (conversation) {
 		return conversation;
 	}
+
+	// Create conversation
 	const newConversation = await createPrivateConversation(chatKey);
 	if (!newConversation) {
 		throw new Error("Failed to create conversation");
 	}
+
+	// Create conversation members
 	for (const memberId of memberIds) {
-		console.log("memberId", memberId);
 		await createConversationMember(newConversation.id, memberId);
 	}
-	return newConversation;
+
+	return await getPrivateConversationByChatKey(chatKey);
 };

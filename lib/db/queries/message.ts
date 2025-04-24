@@ -19,7 +19,6 @@ export const getMessages = async ({
 	offset,
 }: GetMessagesQuery) => {
 	const filter = [];
-	console.log(conversationId);
 	if (conversationId) {
 		filter.push(eq(messagesDB.conversationId, Number.parseInt(conversationId)));
 	}

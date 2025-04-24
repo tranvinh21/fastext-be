@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, exists } from "drizzle-orm";
 import db from "../index";
 import {
 	type Conversation,
@@ -16,26 +16,106 @@ export const getConversation = async (
 		.where(eq(conversations.name, name));
 	return conversation[0];
 };
-export const getConversationByChatKey = async (
-	chatKey: string,
-): Promise<Conversation | undefined> => {
+// Join to members table
+export const getPrivateConversationByChatKey = async (chatKey: string) => {
+	const conversation = await db.query.conversations.findFirst({
+		with: {
+			members: {
+				with: {
+					user: {
+						columns: {
+							password: false,
+							createdAt: false,
+							updatedAt: false,
+							id: false,
+						},
+					},
+				},
+				columns: {
+					createdAt: false,
+					updatedAt: false,
+					id: false,
+				},
+			},
+		},
+		columns: {
+			createdAt: false,
+			updatedAt: false,
+			deletedAt: false,
+		},
+		where: eq(conversations.chatKey, chatKey),
+	});
+	return conversation;
+};
+
+export const getGroupConversation = async (): Promise<
+	Conversation | undefined
+> => {
 	const conversation = await db
 		.select()
 		.from(conversations)
-		.where(eq(conversations.chatKey, chatKey));
+		.where(eq(conversations.isGroup, true));
 	return conversation[0];
 };
+
+export const getGroupsByUserId = async (userId: number) => {
+	const convs = await db.query.conversations.findMany({
+		with: {
+			members: {
+				with: {
+					user: {
+						columns: {
+							password: false,
+							createdAt: false,
+							updatedAt: false,
+						},
+					},
+				},
+				columns: {
+					createdAt: false,
+					updatedAt: false,
+					id: false,
+				},
+			},
+		},
+		columns: {
+			createdAt: false,
+			updatedAt: false,
+			deletedAt: false,
+		},
+		where: and(
+			eq(conversations.isGroup, true),
+			exists(
+				db
+					.select()
+					.from(conversationMembers)
+					.where(
+						and(
+							eq(conversationMembers.conversationId, conversations.id),
+							eq(conversationMembers.userId, userId),
+						),
+					),
+			),
+		),
+	});
+
+	return convs;
+};
+
 export const createPrivateConversation = async (
 	chatKey: string,
-): Promise<Conversation | undefined> => {
-	return createConversation(null, chatKey, false);
-};
+): Promise<Conversation | undefined> => {};
 export const createGroupConversation = async (
 	memberIds: number[],
 	name: string,
 	chatKey: string,
 ): Promise<Conversation | undefined> => {
-	return createConversation(name, memberIds, chatKey, true);
+	const conversation = await createConversation(name, chatKey, true);
+	for (const memberId of memberIds) {
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		await createConversationMember(conversation?.id!, memberId);
+	}
+	return conversation;
 };
 export const createConversation = async (
 	name: string | null,
@@ -74,4 +154,35 @@ export const createConversationMember = async (
 		conversationId,
 		userId,
 	});
+};
+
+export const getGroupConversationByChatKey = async (chatKey: string) => {
+	const conversation = await db.query.conversations.findFirst({
+		where: eq(conversations.chatKey, chatKey),
+		with: {
+			members: {
+				with: {
+					user: {
+						columns: {
+							password: false,
+							createdAt: false,
+							updatedAt: false,
+							id: false,
+						},
+					},
+				},
+				columns: {
+					createdAt: false,
+					updatedAt: false,
+					id: false,
+				},
+			},
+		},
+		columns: {
+			createdAt: false,
+			updatedAt: false,
+			deletedAt: false,
+		},
+	});
+	return conversation;
 };

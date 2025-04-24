@@ -29,6 +29,13 @@
       "when": 1745375403928,
       "tag": "0003_worthless_talkback",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745480000207,
+      "tag": "0004_lonely_shen",
+      "breakpoints": true
     }
   ]
 }
