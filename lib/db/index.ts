@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-
 import postgres from "postgres";
+import { env } from "../../config/env";
 import {
 	conversationMembers,
 	conversationMembersRelations,
@@ -17,7 +17,6 @@ import {
 	messages,
 	users,
 } from "./schema";
-import { env } from "../../config/env";
 
 const client = postgres(env.database.databaseUrl);
 const db = drizzle(client, {
@@ -39,4 +38,5 @@ const db = drizzle(client, {
 	},
 });
 
+export type Database = typeof db;
 export default db;

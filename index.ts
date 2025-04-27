@@ -1,9 +1,14 @@
+import { createServer } from "node:http";
+import { Server } from "socket.io";
 import { HttpServer } from "./server/http";
-import Websocket from "./server/websocket";
+import { WsModule } from "./server/ws";
 
-const httpServer = new HttpServer(3000);
-Websocket.getInstance(httpServer);
-Websocket.initializeHandlers();
+const expressServer = new HttpServer();
+const httpServer = createServer(expressServer.GetApp());
 
-httpServer.Run();
+const ioServer = new Server(httpServer);
+new WsModule(ioServer);
 
+httpServer.listen(3000, () => {
+	console.log("Server is running on port 3000");
+});

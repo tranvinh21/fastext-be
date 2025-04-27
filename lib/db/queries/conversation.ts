@@ -102,6 +102,48 @@ export const getGroupsByUserId = async (userId: number) => {
 	return convs;
 };
 
+export const getConversationsByUserId = async (userId: number) => {
+	const convs = await db.query.conversations.findMany({
+		with: {
+			members: {
+				with: {
+					user: {
+						columns: {
+							password: false,
+							createdAt: false,
+							updatedAt: false,
+						},
+					},
+				},
+				columns: {
+					createdAt: false,
+					updatedAt: false,
+					id: false,
+				},
+			},
+		},
+		columns: {
+			createdAt: false,
+			updatedAt: false,
+			deletedAt: false,
+		},
+		where: and(
+			exists(
+				db
+					.select()
+					.from(conversationMembers)
+					.where(
+						and(
+							eq(conversationMembers.conversationId, conversations.id),
+							eq(conversationMembers.userId, userId),
+						),
+					),
+			),
+		),
+	});
+
+	return convs;
+};
 export const createPrivateConversation = async (
 	chatKey: string,
 ): Promise<Conversation | undefined> => {
